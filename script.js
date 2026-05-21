@@ -1,3 +1,11 @@
+// Kích hoạt tính năng chạy nền PWA ứng dụng độc lập
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('Midnight Pace PWA đã sẵn sàng chạy nền!', reg.scope))
+      .catch(err => console.log('Lỗi đăng ký PWA:', err));
+  });
+}
 // Khởi tạo các biến toàn cục
 let map, routeLine;
 let watchId = null;
