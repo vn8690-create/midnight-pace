@@ -1,6 +1,6 @@
-# 🌌 MIDNIGHT PACE — App Chạy Bộ Hệ Cyberpunk
+# 🌌 MIDNIGHT PACE — App Chạy Bộ
 
-> *"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút tha thứ cho chính mình."*
+> *"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút động lực thay đổi chính mình."*
 
 **Midnight Pace** không chỉ là một ứng dụng theo dõi chạy bộ thông thường. Đây là một trải nghiệm công nghệ dành cho những người thích sải bước dưới màn đêm, kết hợp giữa triết lý sống sâu lắng và giao diện Futuristic Dark Mode tối tân.
 
