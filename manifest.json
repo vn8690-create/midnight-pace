@@ -1,0 +1,17 @@
+{
+  "name": "Midnight Pace",
+  "short_name": "MidnightPace",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#050508",
+  "theme_color": "#00ff9d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/cyber/512/00ff9d/running.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
