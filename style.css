@@ -1,164 +1,229 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midnight Pace - CHẠY CÙNG ĐAM MÊ</title>
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+:root {
+  --bg-color: #050508;
+  --panel-bg: #0d0e15;
+  --cyber-green: #00ff9d;
+  --cyber-red: #ff0055;
+  --cyber-blue: #00d2ff;
+  --text-main: #e2e8f0;
+}
 
-  <div id="profile-modal" class="modal-overlay">
-    <div class="modal-content">
-      <h2><i class="fa-solid fa-user-astronaut"></i> KHỞI TẠO RUNNER</h2>
-      <p>Nhập thông tin để hệ thống tối ưu hóa lượng Calo tiêu thụ của bạn.</p>
-      <input type="text" id="username-input" placeholder="Biệt danh của bạn..." maxlength="15">
-      <input type="number" id="weight-input" placeholder="Cân nặng của bạn (KG)..." min="30" max="150">
-      <button id="btn-save-profile" class="btn btn-cyber-green">KÍCH HOẠT HỆ THỐNG</button>
-    </div>
-  </div>
-
-  <div class="app-wrapper">
-    <div class="app-container" id="capture-zone">
-      <div class="header">
-        <div class="logo-zone">
-          <span class="pulse-dot"></span>
-          <h1>MIDNIGHT PACE</h1>
-        </div>
-        <p id="welcome-text" class="runner-badge">Hệ thống đang chờ định danh...</p>
-        <p id="status" class="quote-text">"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút tha thứ cho chính mình."</p>
-      </div>
-
-      <div class="stats-container">
-        <div class="stat-box distance-glow">
-          <span class="label"><i class="fas fa-route"></i> Quãng đường</span>
-          <div class="value-wrapper">
-            <span class="value" id="distance">0.00</span>
-            <span class="unit">KM</span>
-          </div>
-        </div>
-        <div class="stat-box calories-glow">
-          <span class="label"><i class="fa-solid fa-fire"></i> Năng lượng</span>
-          <div class="value-wrapper">
-            <span class="value" id="calories">0</span>
-            <span class="unit">KCAL</span>
-          </div>
-        </div>
-        <div class="stat-box timer-glow">
-          <span class="label"><i class="fas fa-stopwatch"></i> Thời gian</span>
-          <div class="value-wrapper">
-            <span class="value" id="timer">00:00:00</span>
-            <span class="unit">LIVE</span>
-          </div>
-        </div>
-      </div>
-
-      <div id="map-container" class="map-style"></div>
-
-      <div class="control-panel">
-        <button id="btn-start" class="btn btn-cyber-green">BẮT ĐẦU HÀNH TRÌNH</button>
-        <button id="btn-stop" class="btn btn-cyber-red d-none">KẾT THÚC CHẶNG</button>
-      </div>
-
-      <div class="history-panel">
-        <div class="history-header"><i class="fa-solid fa-clock-history"></i> LỊCH SỬ CHẠY BỘ</div>
-        <div id="history-empty" class="history-empty">Chưa có dữ liệu hành trình nào được lưu.</div>
-        <ul id="history-list"></ul>
-      </div>
-
-      <div id="share-panel" class="share-panel d-none">
-        <div class="share-card">
-          <p class="share-title">🎉 Hành trình đã được ghi lại!</p>
-          <p class="share-desc">Ảnh thống kê của bro đã sẵn sàng bên dưới. Nhấn giữ ảnh để lưu về máy và đăng lên Facebook nhé!</p>
-          <div id="preview-image-zone" class="preview-image-zone"></div>
-          <button id="btn-share-fb" class="btn-fb">
-            <i class="fab fa-facebook-f"></i> MỞ FACEBOOK ĐỂ ĐĂNG
-          </button>
-        </div>
-      </div>
-
-      <div class="log-panel">
-        <div class="log-header">HỆ THỐNG VẬN HÀNH</div>
-        <ul id="log-list">
-          <li class="system-ready">Định vị GPS đang ở trạng thái chờ lệnh...</li>
-        </ul>
-      </div>
-
-      <div class="admob-native-card" id="ad-banner">
-        <div class="ad-badge">Tài Trợ</div>
-        <div class="ad-body">
-          <div class="ad-info">
-            <h4 class="ad-title">Toyota Alphard 40</h4>
-            <p class="ad-text">Đỉnh cao chuyên cơ mặt đất. Trải nghiệm không gian xa hoa.</p>
-          </div>
-          <div class="ad-action-btn">Khám Phá</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="wallet-alert" class="wallet-alert d-none">
-    <div class="wallet-alert-content">💰 <strong>+$0.15 CPC</strong> Tiền quảng cáo đã chuyển vào ví!</div>
-  </div>
-
-  <script src="script.js"></script>
-/* --- ĐOẠN CODE VÁ LỖI HIỂN THỊ TRÊN ĐIỆN THOẠI (DÁN DƯỚI CÙNG STYLE.CSS) --- */
-
-/* Khóa cứng không cho màn hình điện thoại bị vuốt lệch sang ngang */
+/* --- HỆ THỐNG KHÓA TRÀN VIỀN DI ĐỘNG --- */
 html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-main);
   overflow-x: hidden;
   position: relative;
   width: 100%;
 }
 
-/* Sửa lại Pop-up tài khoản ảo bao trọn màn hình điện thoại, không bị lệch */
+.app-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.app-container {
+  background: var(--panel-bg);
+  border: 1px solid #1e2235;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.logo-zone h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #fff;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(255,255,255,0.3);
+}
+
+.runner-badge {
+  color: var(--cyber-blue);
+  font-size: 14px;
+  margin: 5px 0 0 0;
+  font-weight: bold;
+}
+
+.quote-text {
+  font-style: italic;
+  font-size: 13px;
+  color: #718096;
+}
+
+/* Khối Stats chỉ số */
+.stats-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.stats-container .stat-box:last-child {
+  grid-column: span 2;
+}
+
+.stat-box {
+  background: #121420;
+  border: 1px solid #23283d;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-box .label {
+  font-size: 11px;
+  color: #a0aec0;
+  text-transform: uppercase;
+}
+
+.value-wrapper {
+  margin-top: 5px;
+}
+
+.stat-box .value {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.stat-box .unit {
+  font-size: 12px;
+  margin-left: 4px;
+  color: #718096;
+}
+
+/* Màu phát sáng Neon */
+.distance-glow .value { color: var(--cyber-green); text-shadow: 0 0 10px rgba(0,255,157,0.3); }
+.calories-glow .value { color: #ff9f00; text-shadow: 0 0 10px rgba(255,159,0,0.3); }
+.timer-glow .value { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+/* Bản đồ */
+.map-style {
+  height: 250px;
+  border-radius: 12px;
+  border: 1px solid #23283d;
+  margin-bottom: 15px;
+  background: #090a0f;
+}
+
+/* Nút bấm */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-cyber-green { background: var(--cyber-green); color: #000; }
+.btn-cyber-green:hover { box-shadow: 0 0 15px var(--cyber-green); }
+.btn-cyber-red { background: var(--cyber-red); color: #fff; }
+
+/* Bảng lịch sử */
+.history-panel {
+  background: #121420;
+  border: 1px solid #23283d;
+  border-radius: 12px;
+  margin-top: 15px;
+  padding: 12px;
+}
+
+.history-header {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--cyber-blue);
+  border-bottom: 1px solid #23283d;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.history-empty {
+  font-size: 12px;
+  color: #4a5568;
+  text-align: center;
+  padding: 10px 0;
+}
+
+#history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #1a1d2d;
+}
+
+.history-date { color: #a0aec0; }
+.history-data { color: var(--cyber-green); font-weight: bold; }
+
+/* --- ĐỊNH VỊ POP-UP CHO DI ĐỘNG CHUẨN ĐÉT --- */
 .modal-overlay {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  background: rgba(5, 5, 8, 0.98) !important; /* Tối hẳn để tập trung nhập thông tin */
+  background: rgba(5, 5, 8, 0.98) !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  z-index: 99999 !important; /* Đảm bảo nổi lên trên cùng bản đồ */
+  z-index: 99999 !important;
 }
 
-/* Định hình lại cái hộp nhập liệu cho nuột nà trên màn hình iPhone/Android */
 .modal-content {
   background: #0d0e15 !important;
   border: 1px solid var(--cyber-blue) !important;
   padding: 30px 20px !important;
   border-radius: 16px !important;
-  max-width: 85% !important; /* Tự co giãn theo chiều ngang điện thoại */
+  max-width: 85% !important;
   width: 320px !important;
   text-align: center !important;
   box-shadow: 0 0 30px rgba(0, 210, 255, 0.4) !important;
   box-sizing: border-box !important;
 }
 
-/* Ép các ô nhập liệu không được phình to quá màn hình */
+.modal-content h2 { margin: 0 0 10px 0; font-size: 18px; color: var(--cyber-blue); }
+.modal-content p { font-size: 12px; color: #a0aec0; margin-bottom: 20px; }
+
 .modal-content input {
   width: 100% !important;
   box-sizing: border-box !important;
   margin-bottom: 15px !important;
   height: 45px !important;
+  background: #121420;
+  border: 1px solid #23283d;
+  border-radius: 8px;
+  color: #fff;
+  text-align: center;
   font-size: 14px !important;
 }
 
-/* Sửa nút bấm kích hoạt to rõ ràng dễ chạm bằng ngón tay */
-.modal-content .btn {
-  width: 100% !important;
-  padding: 12px !important;
-  font-size: 14px !important;
-}
-</body>
-</html>
+.modal-content input:focus { border-color: var(--cyber-green); outline: none; }
+.modal-content .btn { width: 100% !important; padding: 12px !important; font-size: 14px !important; }
 
+/* Log panel & QC */
+.log-panel { background: #090a0f; border: 1px solid #1a1d2d; padding: 10px; border-radius: 8px; margin-top: 15px; font-family: monospace; font-size: 11px; }
+.log-header { color: #4a5568; margin-bottom: 5px; }
+#log-list { list-style: none; padding: 0; margin: 0; color: #718096; }
+.admob-native-card { margin-top: 15px; background: #121420; border: 1px solid #23283d; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; position: relative; }
+.ad-badge { position: absolute; top: 5px; right: 5px; background: #2d3748; color: #a0aec0; font-size: 9px; padding: 2px 5px; border-radius: 4px; }
+.ad-body { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+.ad-title { margin: 0; font-size: 14px; color: #fff; }
+.ad-text { margin: 2px 0 0 0; font-size: 11px; color: #718096; }
+.ad-action-btn { background: var(--cyber-blue); color: #000; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+.wallet-alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #00ff9d; color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 14px; z-index: 10000; box-shadow: 0 4px 15px rgba(0,255,157,0.4); }
+.d-none { display: none !important; }
