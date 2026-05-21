@@ -108,8 +108,6 @@
   </div>
 
   <script src="script.js"></script>
-</body>
-</html>
 /* --- ĐOẠN CODE VÁ LỖI HIỂN THỊ TRÊN ĐIỆN THOẠI (DÁN DƯỚI CÙNG STYLE.CSS) --- */
 
 /* Khóa cứng không cho màn hình điện thoại bị vuốt lệch sang ngang */
@@ -161,3 +159,6 @@ html, body {
   padding: 12px !important;
   font-size: 14px !important;
 }
+</body>
+</html>
+
