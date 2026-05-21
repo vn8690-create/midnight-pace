@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ad-banner').addEventListener('click', clickAd);
 });
 
-// Bản đồ thô sơ ban đầu
+// Bản đồ đêm Cyberpunk
 function initMap() {
     map = L.map('map-container').setView([21.0285, 105.8542], 15);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -65,7 +65,6 @@ function saveProfile() {
 function updateStats() {
     document.getElementById('distance').innerText = totalDistance.toFixed(2);
     
-    // Tính Calo: Giả lập vận tốc chạy bộ thông thường có chỉ số MET = 8.0
     if (startTime) {
         let elapsedMinutes = (Date.now() - startTime) / 60000;
         totalCalories = elapsedMinutes * ((8.0 * 3.5 * runnerProfile.weight) / 200);
@@ -73,7 +72,7 @@ function updateStats() {
     }
 }
 
-// Bắt đầu chạy bộ
+// Bắt đầu chạy bộ - ĐÃ TỐI ƯU HÓA GPS ĐỘ NHẠY CAO
 function startTracking() {
     if (watchId) return;
     
@@ -85,9 +84,9 @@ function startTracking() {
     lastCoord = null;
     
     document.getElementById('btn-start').classList.add('d-none');
-    document.getElementById('btn-stop').classList.remove('d-none');
+    document.getElementById('btn-stop').removeProperty ? document.getElementById('btn-stop').removeAttribute('class') : null;
+    document.getElementById('btn-stop').className = "btn btn-cyber-red";
     
-    // Chạy bộ bấm giờ liên tục
     timerInterval = setInterval(() => {
         let diff = Date.now() - startTime;
         let hrs = Math.floor(diff / 3600000).toString().padStart(2, '0');
@@ -97,7 +96,7 @@ function startTracking() {
         updateStats();
     }, 1000);
 
-    addLog("Đang kết nối vệ tinh GPS...");
+    addLog("Đang kết nối vệ tinh GPS siêu nhạy...");
 
     if (navigator.geolocation) {
         watchId = navigator.geolocation.watchPosition(
@@ -107,14 +106,16 @@ function startTracking() {
                 const currentPos = [lat, lng];
 
                 if (lastCoord) {
-                    // Thuật toán Haversine đo khoảng cách chuẩn hệ tọa độ địa lý trái đất
+                    // Thuật toán Haversine tính khoảng cách giữa 2 điểm tọa độ
                     let d = distanceHaversine(lastCoord[0], lastCoord[1], lat, lng);
-                    if (d > 0.002) { 
+                    
+                    // BỘ LỌC ĐÃ ĐƯỢC TỐI ƯU: Nhận diện khoảng cách cực nhỏ (> 0.0001 KM tức là > 0.1 mét) để bám sát vỉa hè
+                    if (d > 0.0001 && d < 0.5) { 
                         totalDistance += d;
-                        addLog(`Di chuyển: +${(d*1000).toFixed(0)} mét`);
+                        addLog(`Di chuyển: +${(d*1000).toFixed(1)}m (Độ chính xác: ${position.coords.accuracy ? position.coords.accuracy.toFixed(0) : '?' }m)`);
                     }
                 } else {
-                    addLog("Đã khóa mục tiêu vị trí!");
+                    addLog("Mục tiêu đã khóa! Đang vẽ vệt sáng hành trình...");
                 }
 
                 lastCoord = currentPos;
@@ -123,8 +124,12 @@ function startTracking() {
                 map.setView(currentPos, 16);
                 updateStats();
             },
-            (error) => { addLog("Lỗi: Không tìm thấy tín hiệu định vị!"); },
-            { enableHighAccuracy: true, distanceFilter: 1 }
+            (error) => { addLog("Lỗi: Tín hiệu định vị yếu hoặc bị chặn!"); },
+            { 
+                enableHighAccuracy: true, // Ép dùng GPS phần cứng thay vì Wifi/Mạng di động
+                maximumAge: 0,            // Không dùng tọa độ cũ lưu trong bộ nhớ đệm
+                timeout: 5000             // Lấy tọa độ liên tục sau mỗi 5 giây tối đa
+            }
         );
     }
 }
@@ -137,18 +142,16 @@ function stopTracking() {
     clearInterval(timerInterval);
     watchId = null;
     
-    document.getElementById('btn-stop').classList.add('d-none');
-    document.getElementById('btn-start').classList.remove('d-none');
+    document.getElementById('btn-stop').className = "btn btn-cyber-red d-none";
+    document.getElementById('btn-start').className = "btn btn-cyber-green";
     
-    addLog(`Hành trình kết thúc. Tổng cộng: ${totalDistance.toFixed(2)} KM.`);
-    
-    // Tiến hành lưu lịch sử vào bộ nhớ điện thoại
+    addLog(`Hành trình kết thúc. Đã lưu ${totalDistance.toFixed(2)} KM.`);
     saveToHistory(totalDistance.toFixed(2), Math.round(totalCalories), document.getElementById('timer').innerText);
 }
 
-// Thuật toán đo khoảng cách trái đất hình cầu
+// Thuật toán đo khoảng cách trái đất hình cầu chuẩn địa lý
 function distanceHaversine(lat1, lon1, lat2, lon2) {
-    const R = 6371;
+    const R = 6371; // Bán kính Trái Đất (KM)
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -165,7 +168,7 @@ function saveToHistory(km, kcal, duration) {
     const dateStr = `${today.getDate()}/${today.getMonth() + 1} ${today.getHours()}:${today.getMinutes().toString().padStart(2, '0')}`;
     
     const newRecord = { date: dateStr, km: km, kcal: kcal, time: duration };
-    history.unshift(newRecord); // Cho lên đầu danh sách
+    history.unshift(newRecord);
     localStorage.setItem('midnight_history', JSON.stringify(history));
     
     loadHistory();
@@ -178,12 +181,11 @@ function loadHistory() {
     
     list.innerHTML = "";
     if (history.length === 0) {
-        emptyText.classList.remove('d-none');
+        emptyText.className = "history-empty";
         return;
     }
     
-    emptyText.classList.add('d-none');
-    // Chỉ hiển thị tối đa 5 chuyến chạy gần nhất cho nhẹ app
+    emptyText.className = "history-empty d-none";
     history.slice(0, 5).forEach(item => {
         const li = document.createElement('li');
         li.className = "history-item";
@@ -200,11 +202,13 @@ function addLog(message) {
     const li = document.createElement('li');
     li.innerText = `> ${message}`;
     list.appendChild(li);
-    if (list.children.length > 3) list.removeChild(list.children[0]);
+    if (list.children.length > 4) list.removeChild(list.children[0]);
 }
 
 function clickAd() {
     const alertBox = document.getElementById('wallet-alert');
-    alertBox.classList.remove('d-none');
-    setTimeout(() => { alertBox.classList.add('d-none'); }, 3000);
+    if(alertBox) {
+        alertBox.className = "wallet-alert";
+        setTimeout(() => { alertBox.className = "wallet-alert d-none"; }, 3000);
+    }
 }
