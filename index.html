@@ -1,74 +1,87 @@
-<link rel="stylesheet" href="style.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midnight Pace - CHẠY VÌ ĐAM MÊ</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="app-wrapper">
-  <div class="app-container" id="capture-zone">
-    <div class="header">
-      <div class="logo-zone">
-        <span class="pulse-dot"></span>
-        <h1>MIDNIGHT PACE</h1>
+  <div class="app-wrapper">
+    <div class="app-container" id="capture-zone">
+      <div class="header">
+        <div class="logo-zone">
+          <span class="pulse-dot"></span>
+          <h1>MIDNIGHT PACE</h1>
+        </div>
+        <p id="status" class="quote-text">"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút tha thứ cho chính mình."</p>
       </div>
-      <p id="status" class="quote-text">"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút tha thứ cho chính mình."</p>
-    </div>
 
-    <div class="stats-container">
-      <div class="stat-box distance-glow">
-        <span class="label"><i class="fas fa-route"></i> Quãng đường</span>
-        <div class="value-wrapper">
-          <span class="value" id="distance">0.00</span>
-          <span class="unit">KM</span>
+      <div class="stats-container">
+        <div class="stat-box distance-glow">
+          <span class="label"><i class="fas fa-route"></i> Quãng đường</span>
+          <div class="value-wrapper">
+            <span class="value" id="distance">0.00</span>
+            <span class="unit">KM</span>
+          </div>
+        </div>
+        <div class="stat-box timer-glow">
+          <span class="label"><i class="fas fa-stopwatch"></i> Thời gian</span>
+          <div class="value-wrapper">
+            <span class="value" id="timer">00:00:00</span>
+            <span class="unit">LIVE</span>
+          </div>
         </div>
       </div>
-      <div class="stat-box timer-glow">
-        <span class="label"><i class="fas fa-stopwatch"></i> Thời gian</span>
-        <div class="value-wrapper">
-          <span class="value" id="timer">00:00:00</span>
-          <span class="unit">LIVE</span>
+
+      <div id="map-container" class="map-style"></div>
+
+      <div class="control-panel">
+        <button id="btn-start" class="btn btn-cyber-green">BẮT ĐẦU HÀNH TRÌNH</button>
+        <button id="btn-stop" class="btn btn-cyber-red d-none">KẾT THÚC CHẶNG</button>
+      </div>
+
+      <div id="share-panel" class="share-panel d-none">
+        <div class="share-card">
+          <p class="share-title">🎉 Hành trình đã được ghi lại!</p>
+          <p class="share-desc">Ảnh thống kê của bro đã sẵn sàng bên dưới. Nhấn giữ ảnh để lưu về máy và đăng lên Facebook nhé!</p>
+          <div id="preview-image-zone" class="preview-image-zone"></div>
+          <button id="btn-share-fb" class="btn-fb">
+            <i class="fab fa-facebook-f"></i> MỞ FACEBOOK ĐỂ ĐĂNG
+          </button>
         </div>
       </div>
-    </div>
 
-    <div id="map-container" class="map-style"></div>
-
-    <div class="control-panel">
-      <button id="btn-start" class="btn btn-cyber-green">BẮT ĐẦU HÀNH TRÌNH</button>
-      <button id="btn-stop" class="btn btn-cyber-red d-none">KẾT THÚC CHẶNG</button>
-    </div>
-
-    <div id="share-panel" class="share-panel d-none">
-      <div class="share-card">
-        <p class="share-title">🎉 Hành trình đã được ghi lại!</p>
-        <p class="share-desc">Ảnh thống kê của bro đã sẵn sàng bên dưới. Nhấn giữ ảnh để lưu về máy và đăng lên Facebook nhé!</p>
-        
-        <div id="preview-image-zone" class="preview-image-zone"></div>
-        
-        <button id="btn-share-fb" class="btn-fb">
-          <i class="fab fa-facebook-f"></i> MỞ FACEBOOK ĐỂ ĐĂNG
-        </button>
+      <div class="log-panel">
+        <div class="log-header">HỆ THỐNG VẬN HÀNH</div>
+        <ul id="log-list">
+          <li class="system-ready">Định vị GPS đang ở trạng thái chờ lệnh...</li>
+        </ul>
       </div>
-    </div>
 
-    <div class="log-panel">
-      <div class="log-header">HỆ THỐNG VẬN HÀNH</div>
-      <ul id="log-list">
-        <li class="system-ready">Định vị GPS đang ở trạng thái chờ lệnh...</li>
-      </ul>
-    </div>
-
-    <div class="admob-native-card" id="ad-banner">
-      <div class="ad-badge">Tài Trợ</div>
-      <div class="ad-body">
-        <div class="ad-info">
-          <h4 class="ad-title">Toyota Alphard 40</h4>
-          <p class="ad-text">Đỉnh cao chuyên cơ mặt đất. Trải nghiệm không gian xa hoa.</p>
+      <div class="admob-native-card" id="ad-banner">
+        <div class="ad-badge">Tài Trợ</div>
+        <div class="ad-body">
+          <div class="ad-info">
+            <h4 class="ad-title">Toyota Alphard 40</h4>
+            <p class="ad-text">Đỉnh cao chuyên cơ mặt đất. Trải nghiệm không gian xa hoa.</p>
+          </div>
+          <div class="ad-action-btn">Khám Phá</div>
         </div>
-        <div class="ad-action-btn">Khám Phá</div>
       </div>
     </div>
   </div>
-</div>
 
-<div id="wallet-alert" class="wallet-alert d-none">
-  <div class="wallet-alert-content">💰 <strong>+$0.15 CPC</strong> Tiền quảng cáo đã chuyển vào ví!</div>
-</div>
+  <div id="wallet-alert" class="wallet-alert d-none">
+    <div class="wallet-alert-content">💰 <strong>+$0.15 CPC</strong> Tiền quảng cáo đã chuyển vào ví!</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
