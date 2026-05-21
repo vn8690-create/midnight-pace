@@ -7,6 +7,7 @@ let totalDistance = 0;
 let totalCalories = 0;
 let lastCoord = null;
 let pathCoords = [];
+let wakeLock = null; // Biến giữ màn hình luôn sáng
 
 // Thông tin tài khoản người dùng (Lưu trên máy)
 let runnerProfile = { username: "Runner", weight: 60 };
@@ -61,19 +62,37 @@ function saveProfile() {
     addLog(`Đã thiết lập tài khoản: ${user}`);
 }
 
-// Logic Tính Calo theo công thức MET khoa học
+// ĐÃ SỬA: Logic tính Calo chuẩn xác dựa trên số KM thực tế di chuyển
 function updateStats() {
     document.getElementById('distance').innerText = totalDistance.toFixed(2);
     
-    if (startTime) {
-        let elapsedMinutes = (Date.now() - startTime) / 60000;
-        totalCalories = elapsedMinutes * ((8.0 * 3.5 * runnerProfile.weight) / 200);
-        document.getElementById('calories').innerText = Math.round(totalCalories);
+    // Công thức sinh học: 1 KM tiêu thụ khoảng 1 Kcal trên mỗi KG trọng lượng cơ thể
+    totalCalories = totalDistance * runnerProfile.weight * 1.03; 
+    document.getElementById('calories').innerText = Math.round(totalCalories);
+}
+
+// TÍNH NĂNG PRO: Ép màn hình điện thoại luôn sáng để định vị liên tục
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            addLog("Đã kích hoạt chế độ chống ngủ màn hình 👁️");
+        }
+    } catch (err) {
+        addLog("Hệ thống không hỗ trợ giữ màn hình sáng.");
     }
 }
 
-// Bắt đầu chạy bộ - ĐÃ TỐI ƯU HÓA GPS ĐỘ NHẠY CAO
-function startTracking() {
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+        addLog("Đã tắt chế độ giữ màn hình.");
+    }
+}
+
+// Bắt đầu chạy bộ
+async function startTracking() {
     if (watchId) return;
     
     startTime = Date.now();
@@ -84,19 +103,20 @@ function startTracking() {
     lastCoord = null;
     
     document.getElementById('btn-start').classList.add('d-none');
-    document.getElementById('btn-stop').removeProperty ? document.getElementById('btn-stop').removeAttribute('class') : null;
     document.getElementById('btn-stop').className = "btn btn-cyber-red";
     
+    // Gọi tính năng giữ màn hình luôn sáng
+    await requestWakeLock();
+
     timerInterval = setInterval(() => {
         let diff = Date.now() - startTime;
         let hrs = Math.floor(diff / 3600000).toString().padStart(2, '0');
         let mins = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
         let secs = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
         document.getElementById('timer').innerText = `${hrs}:${mins}:${secs}`;
-        updateStats();
     }, 1000);
 
-    addLog("Đang kết nối vệ tinh GPS siêu nhạy...");
+    addLog("Đang khóa mục tiêu vệ tinh GPS...");
 
     if (navigator.geolocation) {
         watchId = navigator.geolocation.watchPosition(
@@ -106,35 +126,33 @@ function startTracking() {
                 const currentPos = [lat, lng];
 
                 if (lastCoord) {
-                    // Thuật toán Haversine tính khoảng cách giữa 2 điểm tọa độ
                     let d = distanceHaversine(lastCoord[0], lastCoord[1], lat, lng);
                     
-                    // BỘ LỌC ĐÃ ĐƯỢC TỐI ƯU: Nhận diện khoảng cách cực nhỏ (> 0.0001 KM tức là > 0.1 mét) để bám sát vỉa hè
-                    if (d > 0.0001 && d < 0.5) { 
+                    // Bộ lọc tối ưu bám sát đường chạy (>0.5 mét và chống nhảy tọa độ ảo)
+                    if (d > 0.0005 && d < 0.3) { 
                         totalDistance += d;
-                        addLog(`Di chuyển: +${(d*1000).toFixed(1)}m (Độ chính xác: ${position.coords.accuracy ? position.coords.accuracy.toFixed(0) : '?' }m)`);
+                        updateStats(); // Chỉ cập nhật Calo khi số KM thực tế thay đổi
                     }
                 } else {
-                    addLog("Mục tiêu đã khóa! Đang vẽ vệt sáng hành trình...");
+                    addLog("Đã khóa GPS! Bắt đầu vẽ hành trình...");
                 }
 
                 lastCoord = currentPos;
                 pathCoords.push(currentPos);
                 routeLine.setLatLngs(pathCoords);
                 map.setView(currentPos, 16);
-                updateStats();
             },
-            (error) => { addLog("Lỗi: Tín hiệu định vị yếu hoặc bị chặn!"); },
+            (error) => { addLog("Lỗi: Định vị bị gián đoạn!"); },
             { 
-                enableHighAccuracy: true, // Ép dùng GPS phần cứng thay vì Wifi/Mạng di động
-                maximumAge: 0,            // Không dùng tọa độ cũ lưu trong bộ nhớ đệm
-                timeout: 5000             // Lấy tọa độ liên tục sau mỗi 5 giây tối đa
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
             }
         );
     }
 }
 
-// Kết thúc chạy bộ và Lưu lịch sử
+// Kết thúc chạy bộ
 function stopTracking() {
     if (!watchId) return;
     
@@ -142,16 +160,19 @@ function stopTracking() {
     clearInterval(timerInterval);
     watchId = null;
     
+    // Giải phóng, cho phép màn hình khóa như bình thường
+    releaseWakeLock();
+    
     document.getElementById('btn-stop').className = "btn btn-cyber-red d-none";
     document.getElementById('btn-start').className = "btn btn-cyber-green";
     
-    addLog(`Hành trình kết thúc. Đã lưu ${totalDistance.toFixed(2)} KM.`);
+    addLog(`Hành trình hoàn thành: ${totalDistance.toFixed(2)} KM.`);
     saveToHistory(totalDistance.toFixed(2), Math.round(totalCalories), document.getElementById('timer').innerText);
 }
 
-// Thuật toán đo khoảng cách trái đất hình cầu chuẩn địa lý
+// Thuật toán đo khoảng cách chuẩn địa lý
 function distanceHaversine(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Bán kính Trái Đất (KM)
+    const R = 6371; 
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -161,7 +182,7 @@ function distanceHaversine(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// Quản lý lưu trữ lịch sử chạy bộ (LocalStorage)
+// Quản lý lưu trữ lịch sử
 function saveToHistory(km, kcal, duration) {
     const history = JSON.parse(localStorage.getItem('midnight_history')) || [];
     const today = new Date();
