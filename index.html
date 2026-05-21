@@ -3,15 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midnight Pace - CHẠY VÌ ĐAM MÊ</title>
+    <title>Midnight Pace - CHẠY CÙNG ĐAM MÊ</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <div id="profile-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2><i class="fa-solid fa-user-astronaut"></i> KHỞI TẠO RUNNER</h2>
+      <p>Nhập thông tin để hệ thống tối ưu hóa lượng Calo tiêu thụ của bạn.</p>
+      <input type="text" id="username-input" placeholder="Biệt danh của bạn..." maxlength="15">
+      <input type="number" id="weight-input" placeholder="Cân nặng của bạn (KG)..." min="30" max="150">
+      <button id="btn-save-profile" class="btn btn-cyber-green">KÍCH HOẠT HỆ THỐNG</button>
+    </div>
+  </div>
 
   <div class="app-wrapper">
     <div class="app-container" id="capture-zone">
@@ -20,6 +31,7 @@
           <span class="pulse-dot"></span>
           <h1>MIDNIGHT PACE</h1>
         </div>
+        <p id="welcome-text" class="runner-badge">Hệ thống đang chờ định danh...</p>
         <p id="status" class="quote-text">"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút tha thứ cho chính mình."</p>
       </div>
 
@@ -29,6 +41,13 @@
           <div class="value-wrapper">
             <span class="value" id="distance">0.00</span>
             <span class="unit">KM</span>
+          </div>
+        </div>
+        <div class="stat-box calories-glow">
+          <span class="label"><i class="fa-solid fa-fire"></i> Năng lượng</span>
+          <div class="value-wrapper">
+            <span class="value" id="calories">0</span>
+            <span class="unit">KCAL</span>
           </div>
         </div>
         <div class="stat-box timer-glow">
@@ -45,6 +64,12 @@
       <div class="control-panel">
         <button id="btn-start" class="btn btn-cyber-green">BẮT ĐẦU HÀNH TRÌNH</button>
         <button id="btn-stop" class="btn btn-cyber-red d-none">KẾT THÚC CHẶNG</button>
+      </div>
+
+      <div class="history-panel">
+        <div class="history-header"><i class="fa-solid fa-clock-history"></i> LỊCH SỬ CHẠY BỘ</div>
+        <div id="history-empty" class="history-empty">Chưa có dữ liệu hành trình nào được lưu.</div>
+        <ul id="history-list"></ul>
       </div>
 
       <div id="share-panel" class="share-panel d-none">
