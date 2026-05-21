@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midnight Pace - CHẠY CÙNG ĐAM MÊ</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Midnight Pace</title>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="manifest" href="manifest.json">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -32,7 +33,7 @@
           <h1>MIDNIGHT PACE</h1>
         </div>
         <p id="welcome-text" class="runner-badge">Hệ thống đang chờ định danh...</p>
-        <p id="status" class="quote-text">"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút tha thứ cho chính mình."</p>
+        <p id="status" class="quote-text">"Hành trình vạn dặm bắt đầu từ một bước chân, và một chút cố gắng thay đổi chính mình."</p>
       </div>
 
       <div class="stats-container">
@@ -66,6 +67,13 @@
         <button id="btn-stop" class="btn btn-cyber-red d-none">KẾT THÚC CHẶNG</button>
       </div>
 
+      <div class="guide-panel">
+         <h3><i class="fa-solid fa-circle-info"></i> HƯỚNG DẪN VẬN HÀNH</h3>
+         <p>1. Cấp quyền truy cập vị trí (GPS) chính xác cao cho trình duyệt khi được yêu cầu.</p>
+         <p>2. Nhấn "Bắt đầu hành trình" và giữ màn hình luôn sáng để vệt sáng bản đồ được ghi nhận liên tục.</p>
+         <p>3. Ứng dụng tích hợp công thức MET sinh học tính Calo dựa trên cân nặng thực tế.</p>
+      </div>
+
       <div class="history-panel">
         <div class="history-header"><i class="fa-solid fa-clock-history"></i> LỊCH SỬ CHẠY BỘ</div>
         <div id="history-empty" class="history-empty">Chưa có dữ liệu hành trình nào được lưu.</div>
@@ -89,13 +97,35 @@
           <li class="system-ready">Định vị GPS đang ở trạng thái chờ lệnh...</li>
         </ul>
       </div>
-     </div>
 
+      <div class="app-footer">
+         <p>© 2026 Midnight Pace. All rights reserved.</p>
+         <a href="#" id="open-privacy" style="color: #00d2ff; text-decoration: none; font-size: 11px;">Chính sách bảo mật (Privacy Policy)</a>
+      </div>
+    </div>
   </div>
 
-  <div id="wallet-alert" class="wallet-alert d-none">
-    <div class="wallet-alert-content">💰 <strong>+$0.15 CPC</strong> Tiền quảng cáo đã chuyển vào ví!</div>
+  <div id="privacy-modal" class="modal-overlay d-none">
+    <div class="modal-content" style="max-width: 400px; text-align: left; max-height: 80vh; overflow-y: auto;">
+      <h2 style="font-size: 16px;"><i class="fa-solid fa-shield-halved"></i> PRIVACY POLICY</h2>
+      <div style="font-size: 11px; color: #a0aec0; line-height: 1.5; margin-bottom: 15px;">
+        <p><strong>1. Thu thập dữ liệu:</strong> Ứng dụng sử dụng quyền định vị GPS để theo dõi quãng đường chạy thực tế của bạn. Toàn bộ dữ liệu vị trí CHỈ được xử lý trực tiếp trên thiết bị và KHÔNG được gửi về bất kỳ máy chủ nào.</p>
+        <p><strong>2. Lưu trữ:</strong> Dữ liệu lịch sử chạy bộ và thông tin cân nặng được lưu trữ cục bộ trên trình duyệt của bạn (LocalStorage). Chúng tôi không thu thập thông tin danh tính cá nhân.</p>
+        <p><strong>3. Quảng cáo bên thứ ba:</strong> Chúng tôi có thể sử dụng các dịch vụ quảng cáo của Google AdSense. Google có thể sử dụng cookie để hiển thị quảng cáo dựa trên các lượt truy cập trước đó của bạn vào trang web này.</p>
+      </div>
+      <button id="btn-close-privacy" class="btn btn-cyber-green" style="padding: 8px;">ĐỒNG Ý & ĐÓNG</button>
+    </div>
   </div>
+
+  <script>
+     document.getElementById('open-privacy').addEventListener('click', (e) => {
+         e.preventDefault();
+         document.getElementById('privacy-modal').classList.remove('d-none');
+     });
+     document.getElementById('btn-close-privacy').addEventListener('click', () => {
+         document.getElementById('privacy-modal').classList.add('d-none');
+     });
+  </script>
 
   <script src="script.js"></script>
 </body>
